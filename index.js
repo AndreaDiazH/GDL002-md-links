@@ -1,12 +1,11 @@
-module.exports = () => {
-  // ...
-};
+
 
 const fs = require ("fs");
 
 
-const md-links = (path, options) => {
+const mdlinks = (path, options) => {
   const newpath = path;
+  if(newpath === "")return false;
   let theFiles = [];
   if (fs.lstatSync(newpath).isDirectory()){
     theFiles = fs.readdirSync(newpath);
@@ -23,20 +22,32 @@ const md-links = (path, options) => {
 }
 
 const validateFile = (archive, array) => {
+  console.log(archive);
   const newFile = fs.readFileSync(archive);
   const readLines = archive.toString().split('\n');
   readLines.forEach((eachLine)=>{
-    foundLink();
+    foundLink(eachLine);
   })
 };
 //regresa un arreglo
 
 const foundLink = (strg) =>{
-  const regEx = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
-  if(strg.search(regEx)){
-    theLinks.push(strg)
-  };
+  //if(strg == "") return false;
+  const regEx = /(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?/;
+  if(strg.search(regEx) != -1){
+    console.log(strg);
+    return true;
+    //theLinks.push(strg)
+  }
+  return false;
 };
+
+module.exports = {
+   "mdLinks2": mdlinks,
+   "foundLink": foundLink
+};
+
+
 //regresa un objeto
 
 //1. recibir una ruta x
