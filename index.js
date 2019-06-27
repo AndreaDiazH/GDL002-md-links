@@ -1,5 +1,3 @@
-
-
 const fs = require ("fs");
 
 
@@ -19,36 +17,51 @@ const mdlinks = (path, options) => {
       validateFile(arch, theLinks);
     }
   });
+  if(theLinks.length > 0){
+    return theLinks;
+  };
 }
 
-const validateFile = (archive, array) => {
-  console.log(archive);
+const validateFile = (archive, newArray) => {
   const newFile = fs.readFileSync(archive);
-  const readLines = archive.toString().split('\n');
+  const readLines = newFile.toString().split('\n');
   readLines.forEach((eachLine)=>{
-    foundLink(eachLine);
-  })
+    let positionLink = foundLink(eachLine);
+    if(positionLink !== false && positionLink >= 0){
+      let checkLink = extractLinks(positionLink, eachLine);
+      checkLink.file = archive;
+      newArray.push(checkLink);
+    }
+  });
+};
+
+const extractLinks = (position, strg) => {
+  let textLink = strg.substring(position + 1, strg.indexOf(']('));
+  let hrefLink = strg.substring(textLink.length + (position + 3), strg.indexOf(')'));
+  let newLink = {
+    "text": textLink,
+    "href": hrefLink,
+    "file": null
+  };
+  return newLink;
 };
 //regresa un arreglo
 
 const foundLink = (strg) =>{
-  //if(strg == "") return false;
-  const regEx = /(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?/;
-  if(strg.search(regEx) != -1){
-    console.log(strg);
-    return true;
-    //theLinks.push(strg)
+  const regEx = /(\[.*\]\()(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?/;
+  if((position = strg.search(regEx)) != -1){
+    return position;
   }
   return false;
 };
 
 module.exports = {
    "mdLinks2": mdlinks,
-   "foundLink": foundLink
+   "foundLink": foundLink,
+   "extractLinks": extractLinks
 };
 
 
-//regresa un objeto
 
 //1. recibir una ruta x
 //2. abre la ruta x
