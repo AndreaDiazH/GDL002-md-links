@@ -1,8 +1,5 @@
 const mdLinks = require('../index.js');
 
-test('mdlinks is a function', () => {
-  expect(mdLinks.mdLinks2("")).toBe(false);
-});
 
 test('foundLink receive empty string', () => {
   expect(mdLinks.foundLink("")).toBe(false);
@@ -30,5 +27,5 @@ test('extractLinks should return an Object', ()=>{
 });
 
 test('mdlinks with valid file', () => {
-  expect(mdLinks.mdLinks2("README.md")).toBeInstanceOf(Array);
+  expect(mdLinks.mdLinks2("README.md")).toBeInstanceOf(Promise);
 });

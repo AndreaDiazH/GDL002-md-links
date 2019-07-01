@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+
+
+if(process.argv.length < 3){
+  console.log("Modo de uso: ./mdlinks <nombre de ruta> --validate / --stats");
+} else {
+const  mdLib = require('./index.js');
+let options = {};
+if(process.argv.includes("--stats"))options.stats = true;
+if(process.argv.includes("--validate"))options.validate = true;
+const showLinks = mdLib.mdLinks2(process.argv[2], options) ;
+showLinks.then((lnk)=>{
+  lnk.forEach((moreLinks)=>{
+    console.log(moreLinks);
+  })
+});
+}
+
+
+

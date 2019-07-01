@@ -1,26 +1,65 @@
 const fs = require ("fs");
+const request = require("request");
 
 
 const mdlinks = (path, options) => {
-  const newpath = path;
-  if(newpath === "")return false;
-  let theFiles = [];
-  if (fs.lstatSync(newpath).isDirectory()){
-    theFiles = fs.readdirSync(newpath);
-  }
-  else {
-    theFiles[0] = newpath;
-  }
-  let theLinks = [];
-  theFiles.forEach((arch)=>{
-    if(arch.endsWith(".md")){
-      validateFile(arch, theLinks);
+  return new Promise ((resolve, reject)=>{
+    const newpath = path;
+    if(newpath === "")return false;
+    let theFiles = [];
+    let itsDir = fs.lstatSync(newpath).isDirectory();
+    if (itsDir){
+      theFiles = fs.readdirSync(newpath);
     }
+    else {
+      theFiles[0] = newpath;
+    }
+    let theLinks = [];
+    theFiles.forEach((arch)=>{
+      if(arch.endsWith(".md")){
+        validateFile((itsDir ? path + "/":"") + arch, theLinks);
+      }
+    });
+    if(options !== undefined && typeof(options) === "object"){
+      if(options.validate === true){
+        let checking = validateLink(theLinks);
+        checking.then((ok)=>{
+          if(ok == true){
+            resolve(theLinks);
+          }
+        })
+      }else {
+        if(theLinks.length > 0){
+          resolve(theLinks);
+        };
+      }
+    } else{
+      if(theLinks.length > 0){
+        resolve(theLinks);
+      };
+    };
   });
-  if(theLinks.length > 0){
-    return theLinks;
-  };
+  
 }
+
+const validateLink = (obj) => {
+  return new Promise ((resolve) =>{
+    let counter = 0;
+    obj.forEach((a)=>{
+      request(a.href, (err, response, body)=>{
+        if(response !== undefined && (response.statusCode === 200 || response.statusCode ===301)) a.valid = true; else a.valid = false;
+        if(++counter == obj.length){
+          resolve(true);
+        }
+      });
+    });
+  });
+}
+
+/*const vl = async(list) =>{ 
+  let resulta = await validateLink(list);
+  return resulta;
+} */
 
 const validateFile = (archive, newArray) => {
   const newFile = fs.readFileSync(archive);
